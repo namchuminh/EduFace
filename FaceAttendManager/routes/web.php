@@ -11,6 +11,8 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ClassRegistrationController;
+
 
 // Đăng nhập & đăng xuất
 Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -81,4 +83,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
     Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+
+    Route::prefix('course-classes/{course_class}/registrations')->group(function () {
+        Route::get('/', [ClassRegistrationController::class, 'index'])->name('class_registrations.index');
+        Route::get('/create', [ClassRegistrationController::class, 'create'])->name('class_registrations.create');
+        Route::post('/', [ClassRegistrationController::class, 'store'])->name('class_registrations.store');
+        Route::delete('/{id}', [ClassRegistrationController::class, 'destroy'])->name('class_registrations.destroy');
+    });
 });
