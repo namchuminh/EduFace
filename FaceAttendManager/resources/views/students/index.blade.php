@@ -52,6 +52,7 @@
                                     <th>Khoa</th>
                                     <th>Lớp</th>
                                     <th>Giới Tính</th>
+                                    <th>Điểm Danh</th>
                                     @if(auth()->user()->role == "admin")
                                         <th>Hành động</th>
                                     @endif
@@ -76,7 +77,11 @@
                                                 <span class="badge badge-secondary">Khác</span>
                                             @endif
                                         </td>
-                                        
+                                        <td>
+                                            <a href="{{ route('students.uploadFace', $student->id) }}" class="btn btn-info">
+                                            <i class="fa-solid fa-camera"></i> Thêm Khuân Mặt
+                                            </a>
+                                        </td>
                                         @if(auth()->user()->role == "admin")
                                             <td>
                                                 <a href="{{ route('students.edit', $student->id) }}" class="btn btn-warning">

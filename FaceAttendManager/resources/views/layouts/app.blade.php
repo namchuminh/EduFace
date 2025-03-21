@@ -193,7 +193,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('attendances.mark') }}" class="nav-link">
+                                    <a href="{{ route('attendances.select') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Thực Hiện Điểm Danh</p>
                                     </a>

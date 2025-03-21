@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
 
 class StudentController extends Controller
 {
@@ -111,5 +113,62 @@ class StudentController extends Controller
     {
         Student::findOrFail($id)->delete();
         return redirect()->route('students.index')->with('success', 'Xóa sinh viên thành công!');
+    }
+
+    public function uploadFace($id){
+        $student = Student::findOrFail($id);
+        return view('students.face', compact('student'));
+    }
+
+    public function uploadFacePost(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+        $msv = $student->student_code; // Lấy mã sinh viên
+
+        if (!$request->hasFile('images')) {
+            return back()->with('error', 'Vui lòng chọn ít nhất một ảnh.');
+        }
+
+        $files = $request->file('images');
+        $multipart = [];
+
+        foreach ($files as $file) {
+            $multipart[] = [
+                'name' => 'images[]',
+                'contents' => fopen($file->getPathname(), 'r'),
+                'filename' => $file->getClientOriginalName(),
+            ];
+        }
+
+        // Gửi dữ liệu lên Flask API
+        $response = Http::attach($multipart)
+            ->post(env('FLASK_SERVER_URL') . '/upload-face', [
+                'msv' => $msv
+            ]);
+
+        if ($response->successful()) {
+            return back()->with('success', 'Ảnh đã được tải lên thành công.');
+        } else {
+            return back()->with('error', 'Lỗi khi gửi ảnh đến Flask.');
+        }
+    }
+
+    public function info(Request $request)
+    {
+        $student_code = $request->query('student_code'); // Lấy từ query string
+
+        $student = Student::where('student_code', $student_code)->first();
+
+        if (!$student) {
+            return response()->json(["error" => "Không tìm thấy sinh viên"], 404);
+        }
+
+        return response()->json([
+            "msv"    => $student->student_code,
+            "name"   => $student->name,
+            "class"  => $student->class,
+            "email"  => $student->email,
+            "phone"  => $student->phone,
+        ]);
     }
 }

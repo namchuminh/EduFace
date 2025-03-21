@@ -42,6 +42,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [StudentController::class, 'edit'])->name('students.edit');
         Route::put('/{id}', [StudentController::class, 'update'])->name('students.update');
         Route::delete('/{id}', [StudentController::class, 'destroy'])->name('students.destroy');
+        Route::get('/{id}/face', [StudentController::class, 'uploadFace'])->name('students.uploadFace');
+        Route::post('/{id}/face', [StudentController::class, 'uploadFacePost'])->name('students.uploadFacePost');
+        Route::get('/info', [StudentController::class, 'info'])->name('students.info');
     });
 
     // Quản lý môn học
@@ -77,8 +80,11 @@ Route::middleware(['auth'])->group(function () {
     // Quản lý điểm danh
     Route::prefix('attendances')->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('attendances.index'); // Xem danh sách điểm danh
-        Route::post('/mark', [AttendanceController::class, 'mark'])->name('attendances.mark'); // Điểm danh
+        Route::get('/select', [AttendanceController::class, 'select'])->name('attendances.select'); // Xem danh sách điểm danh
+        Route::get('/mark', [AttendanceController::class, 'mark'])->name('attendances.mark'); // Điểm danh
+        Route::post('/mark', [AttendanceController::class, 'markPost'])->name('attendances.markPost'); // Điểm danh
         Route::get('/history', [AttendanceController::class, 'history'])->name('attendances.history'); // Lịch sử điểm danh
+        Route::get('/confirm', [AttendanceController::class, 'confirm'])->name('attendances.confirm'); // Xác nhận điểm danh
     });
 
     Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
