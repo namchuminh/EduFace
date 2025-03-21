@@ -132,7 +132,7 @@ class AttendanceController extends Controller
     {
         // Lấy danh sách sinh viên đã điểm danh
         $attendedStudents = Attendance::with('student')->where('schedule_id', $schedule_id)->get();
-        $schedule = Schedule::find($schedule_id)->first(); // Tìm lịch học theo ID
+        $schedule = Schedule::findOrFail($schedule_id); // Tìm lịch học theo ID
         return view('attendances.show', compact('attendedStudents', 'schedule'));
     }
 
