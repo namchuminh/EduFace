@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 19, 2025 at 01:23 PM
+-- Generation Time: Mar 21, 2025 at 07:24 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -33,10 +33,18 @@ CREATE TABLE `attendances` (
   `schedule_id` bigint(20) NOT NULL,
   `checked_at` datetime NOT NULL DEFAULT current_timestamp(),
   `status` enum('present','absent','late') NOT NULL,
-  `face_image` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `attendances`
+--
+
+INSERT INTO `attendances` (`id`, `student_id`, `schedule_id`, `checked_at`, `status`, `created_at`, `updated_at`) VALUES
+(9, 2, 1, '2025-03-21 05:54:08', 'present', '2025-03-20 22:54:08', '2025-03-20 23:22:41'),
+(10, 1, 1, '2025-03-21 05:54:08', 'present', '2025-03-20 22:54:08', '2025-03-20 22:58:49'),
+(13, 2, 2, '2025-03-21 06:20:11', 'present', '2025-03-20 23:20:11', '2025-03-20 23:22:50');
 
 -- --------------------------------------------------------
 
@@ -52,6 +60,14 @@ CREATE TABLE `class_registrations` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Dumping data for table `class_registrations`
+--
+
+INSERT INTO `class_registrations` (`id`, `student_id`, `course_class_id`, `created_at`, `updated_at`) VALUES
+(3, 1, 1, '2025-03-20 05:17:42', '2025-03-20 05:17:42'),
+(6, 2, 2, '2025-03-20 23:19:17', '2025-03-20 23:19:17');
+
 -- --------------------------------------------------------
 
 --
@@ -63,12 +79,20 @@ CREATE TABLE `course_classes` (
   `class_code` varchar(20) NOT NULL,
   `subject_id` bigint(20) NOT NULL,
   `lecturer_id` bigint(20) UNSIGNED NOT NULL,
-  `semester` varchar(10) NOT NULL,
-  `academic_year` varchar(10) NOT NULL,
-  `student_count` int(11) NOT NULL,
+  `semester` varchar(255) NOT NULL,
+  `academic_year` varchar(255) NOT NULL,
+  `student_count` int(11) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `course_classes`
+--
+
+INSERT INTO `course_classes` (`id`, `class_code`, `subject_id`, `lecturer_id`, `semester`, `academic_year`, `student_count`, `created_at`, `updated_at`) VALUES
+(1, 'HP2025', 2, 2, 'Học kỳ 2', '2025 - 2026', 1, '2025-03-20 04:36:33', '2025-03-20 23:23:04'),
+(2, 'HP202522', 1, 2, 'Học kỳ 2', '2025 - 2026', 1, '2025-03-20 04:42:26', '2025-03-20 23:19:17');
 
 -- --------------------------------------------------------
 
@@ -155,6 +179,14 @@ CREATE TABLE `schedules` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `schedules`
+--
+
+INSERT INTO `schedules` (`id`, `course_class_id`, `date`, `start_time`, `end_time`, `room`, `created_at`, `updated_at`) VALUES
+(1, 1, '2025-03-22', '09:00:00', '11:00:00', 'Phòng E203', '2025-03-20 19:13:49', '2025-03-20 19:13:49'),
+(2, 2, '2025-03-22', '19:00:00', '21:30:00', 'Phòng E205', '2025-03-20 23:00:36', '2025-03-20 23:00:36');
 
 -- --------------------------------------------------------
 
@@ -334,19 +366,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `attendances`
 --
 ALTER TABLE `attendances`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `class_registrations`
 --
 ALTER TABLE `class_registrations`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `course_classes`
 --
 ALTER TABLE `course_classes`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -370,7 +402,7 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `schedules`
 --
 ALTER TABLE `schedules`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `students`
