@@ -6,6 +6,7 @@ use App\Models\Schedule;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
+use App\Models\ClassRegistration;
 
 class AttendanceController extends Controller
 {
@@ -26,7 +27,8 @@ class AttendanceController extends Controller
                 });
         }
 
-        $schedules = $query->paginate(10);
+        // Sắp xếp theo ngày mới nhất hoặc thời gian tạo mới nhất
+        $schedules = $query->orderBy('date', 'desc')->paginate(10);
 
         return view('attendances.index', compact('schedules'));
     }
@@ -59,75 +61,99 @@ class AttendanceController extends Controller
         $student_code = $request->query('student_code');
         $schedule_id = $request->query('schedule_id');
 
-        // Lấy thông tin sinh viên
+        // Lấy thông tin sinh viên từ student_code
+        $student = Student::where('student_code', $student_code)->first();
+        if (!$student) {
+            return redirect()->route('attendances.mark', ['schedule_id' => $schedule_id])->with('error', 'Không tìm thấy sinh viên.');
+        }
+
         $student = Student::where('student_code', $student_code)->first();
 
         if (!$student) {
-            return redirect()->route('attendances.index')->with('error', 'Sinh viên không tồn tại!');
+            return response()->json(['error' => 'Sinh viên không tồn tại!'], 404);
         }
 
-        // Kiểm tra xem sinh viên đã điểm danh hay chưa
+        $schedule_class = Schedule::findOrFail($schedule_id);
+
+        $existsStudent = ClassRegistration::where('student_id', $student->id)->where('course_class_id', $schedule_class->course_class_id)->count();
+
+        if ($existsStudent <= 0) {
+            return redirect()->route('attendances.mark', ['schedule_id' => $schedule_id])->with('error', 'Sinh viên không thuộc lớp này.');
+        } 
+
+        // Kiểm tra xem sinh viên đã điểm danh chưa
         $existingAttendance = Attendance::where('student_id', $student->id)
                                         ->where('schedule_id', $schedule_id)
+                                        ->where('status', 'present')
                                         ->first();
-
         if ($existingAttendance) {
-            return redirect()->route('attendances.mark', ['schedule_id' => $schedule_id])->with('error', 'Sinh viên đã điểm danh trước đó!');
+            return redirect()->route('attendances.mark', ['schedule_id' => $schedule_id])->with('error', 'Sinh viên đã điểm danh trước đó.');
         }
 
-        // Thêm bản ghi điểm danh mới
+        // Xóa điểm danh trước nếu tồn tại
+        Attendance::where('student_id', $student->id)
+        ->where('schedule_id', $schedule_id)
+        ->delete();
+
+
+        // Nếu chưa điểm danh, thêm bản ghi mới
         Attendance::create([
             'student_id'  => $student->id,
             'schedule_id' => $schedule_id,
             'checked_at'  => now(),
-            'status'      => 'present',
+            'status'      => 'present', // Có mặt
         ]);
+
+        // Lấy danh sách tất cả sinh viên thuộc lớp học phần của lịch giảng đó
+        $schedule = Schedule::findOrFail($schedule_id);
+        $studentsInClass = ClassRegistration::where('course_class_id', $schedule->courseClass->id)->pluck('student_id');
+
+        // Tạo danh sách sinh viên chưa có trong bảng điểm danh và gán trạng thái 'absent'
+        $studentsNotMarked = $studentsInClass->diff(
+            Attendance::where('schedule_id', $schedule_id)->pluck('student_id')
+        );
+
+        foreach ($studentsNotMarked as $student_id) {
+            Attendance::create([
+                'student_id'  => $student_id,
+                'schedule_id' => $schedule_id,
+                'checked_at'  => now(),
+                'status'      => 'absent', // Mặc định là vắng mặt nếu chưa điểm danh
+            ]);
+        }
 
         return redirect()->route('attendances.mark', ['schedule_id' => $schedule_id])->with('success', 'Điểm danh thành công!');
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Xem thông tin chi tiết điểm danh
      */
-    public function show($id)
+    public function show($schedule_id)
     {
-        //
+        // Lấy danh sách sinh viên đã điểm danh
+        $attendedStudents = Attendance::with('student')->where('schedule_id', $schedule_id)->get();
+        $schedule = Schedule::find($schedule_id)->first(); // Tìm lịch học theo ID
+        return view('attendances.show', compact('attendedStudents', 'schedule'));
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Câp nhật trạng thái điểm danh
      */
-    public function edit($id)
+    public function updateStatus(Request $request)
     {
-        //
-    }
+        $studentId = $request->input('student_id');
+        $scheduleId = $request->input('schedule_id');
+        $status = $request->input('status');
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+        $attendance = Attendance::where('student_id', $studentId)
+                                ->where('schedule_id', $scheduleId)
+                                ->first();
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        if ($attendance) {
+            $attendance->update(['status' => $status]);
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Không tìm thấy bản ghi']);
     }
 }

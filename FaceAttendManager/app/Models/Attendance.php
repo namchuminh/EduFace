@@ -15,6 +15,10 @@ class Attendance extends Model
         'checked_at',
         'status',
     ];
+
+    public function student(){
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 }
 
 

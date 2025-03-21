@@ -25,4 +25,9 @@ class CourseClass extends Model
     public function subject(){
         return $this->belongsTo(Subject::class, 'subject_id');
     }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'course_class_id');
+    }
 }

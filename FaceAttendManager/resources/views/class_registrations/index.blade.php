@@ -64,7 +64,7 @@
                                             <span class="badge badge-info">{{ $registration->student->email }}</span>
                                         </td>
                                         <td>
-                                            <form action="{{ route('class_registrations.destroy', [$courseClass->id, $registration->id]) }}" method="POST" style="display:inline;">
+                                            <form action="{{ route('class_registrations.destroy', [$courseClass->id, $registration->student->id]) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger" onclick="return confirm('Xóa sinh viên này khỏi lớp?')">

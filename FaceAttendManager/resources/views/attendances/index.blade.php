@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Danh Sách Lịch Học')
+@section('title', 'Thông Tin Điểm Danh')
 
 @section('content')
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1>Danh Sách Lịch Học</h1>
+                <h1>Thông Tin Điểm Danh</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Trang Chủ</a></li>
-                    <li class="breadcrumb-item active">Lịch Học</li>
+                    <li class="breadcrumb-item active">Thông Tin Điểm Danh</li>
                 </ol>
             </div>
         </div>
@@ -57,7 +57,7 @@
                                         <td><span class="badge badge-dark">{{ $schedule->start_time }} - {{ $schedule->end_time }}</span></td>
                                         <td><span class="badge badge-primary">{{ $schedule->room ?? 'Chưa có' }}</span></td>
                                         <td>
-                                            <a href="{{ route('schedules.edit', $schedule->id) }}" class="btn btn-primary">
+                                            <a href="{{ route('attendances.show', $schedule->id) }}" class="btn btn-primary">
                                                 <i class="fa-solid fa-user-check"></i> Xem Điểm Danh
                                             </a>
                                         </td>

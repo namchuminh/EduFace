@@ -85,6 +85,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/mark', [AttendanceController::class, 'markPost'])->name('attendances.markPost'); // Điểm danh
         Route::get('/history', [AttendanceController::class, 'history'])->name('attendances.history'); // Lịch sử điểm danh
         Route::get('/confirm', [AttendanceController::class, 'confirm'])->name('attendances.confirm'); // Xác nhận điểm danh
+        Route::get('/{schedule_id}/schedule', [AttendanceController::class, 'show'])->name('attendances.show');
+        Route::post('/update-status', [AttendanceController::class, 'updateStatus'])->name('attendances.updateStatus');
+
     });
 
     Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
